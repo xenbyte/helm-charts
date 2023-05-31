@@ -26,7 +26,7 @@ spec:
         helm:
           valueFiles:
             - 'values.yaml'
-            - 'values/{{name}}.yml'
+            - 'values/{{name}}.yaml'
 
       destination:
         server: '{{server}}'
