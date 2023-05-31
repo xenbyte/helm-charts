@@ -34,7 +34,7 @@ spec:
         targetRevision: HEAD
         helm:
           valueFiles:
-            - 'values/{{target}}.yml'
+            - 'charts/{{appName}}/values/{{target}}.yaml'
 
       destination:
         server: '{{target}}'
