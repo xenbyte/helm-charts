@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-git
+  namespace: argocd
+spec:
+  generators:
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/vamirreza/charts
+              revision: HEAD
+              directories:
+                - path: bitnami/redis/*
+          - clusters: {}
+
+
+  template:
+    metadata:
+      name: '{{path.basename}}-{{name}}'
+    spec:
+      project: 'default'
+      source:
+        repoURL: 'https://github.com/vamirreza/charts'
+        path: '{{path}}'
+        targetRevision: HEAD
+        helm:
+          valueFiles:
+            - 'servers/{{name}}.yml'
+
+      destination:
+        server: '{{server}}'
+        namespace: '{{path.basename}}'
+
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated: # automated sync by default retries failed attempts 5 times with following delays between attempts ( 5s, 10s, 20s, 40s, 80s ); retry controlled using `retry` field.
+          prune: true # Specifies if resources should be pruned during auto-syncing ( false by default ).
+          selfHeal: true%

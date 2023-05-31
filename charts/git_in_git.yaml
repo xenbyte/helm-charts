@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: two-gits-with-path-param-prefix
+spec:
+  generators:
+    - matrix:
+        generators:
+          # git file generator referencing files containing details about each
+          # app to be deployed (e.g., `appName`).
+          - git:
+              repoURL: https://github.com/xenbyte/helm-charts
+              revision: HEAD
+              files:
+                - path: "charts/*"
+              pathParamPrefix: app
+          # git file generator referencing files containing details about
+          # locations to which each app should deploy (e.g., `region` and
+          # `clusterName`).
+          - git:
+              repoURL: https://github.com/xenbyte/helm-charts
+              revision: HEAD
+              files:
+                - path: "charts/{{appName}}/values/*.yaml"
+              pathParamPrefix: target
+  template:
+    metadata:
+      name: '{{target}}-{{path.basename}}-{{name}}'
+    spec:
+      project: 'default'
+      source:
+        repoURL: "https://github.com/xenbyte/helm-charts"
+        path: '{{name}}'
+        targetRevision: HEAD
+        helm:
+          valueFiles:
+            - 'values/{{target}}.yml'
+
+      destination:
+        server: '{{target}}'
+        namespace: '{{path.basename}}'
+
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated: # automated sync by default retries failed attempts 5 times with following delays between attempts ( 5s, 10s, 20s, 40s, 80s ); retry controlled using `retry` field.
+          prune: true # Specifies if resources should be pruned during auto-syncing ( false by default ).
+          selfHeal: true
+
