@@ -28,15 +28,24 @@ spec:
       name: '{{appName}}-{{clusterName}}'
     spec:
       project: 'default'
-      source:
-        repoURL: 'https://github.com/xenbyte/helm-charts'
-        path: 'charts/{{appName}}'
-        targetRevision: HEAD
-        helm:
-          valueFiles:
-            - 'values.yaml'
-            - 'values/{{clusterName}}.yaml'
-
+      sources:
+        - repoURL: "http://206.189.100.76:8080"
+          chart: '{{appName}}'
+          targetRevision: "{{revision}}"
+          helm:
+            valueFiles:
+            - $values/{{appName}}/{{clusterName}}.yaml
+        - repoURL: 'https://github.com/xenbyte/chart-values'
+          targetRevision: HEAD
+          ref: values
+        #source:
+        #  repoURL: 'https://github.com/xenbyte/helm-charts'
+        #  path: 'charts/{{appName}}'
+        #  targetRevision: HEAD
+        #  helm:
+        #    valueFiles:
+        #      - 'values.yaml'
+        #      - 'values/{{clusterName}}.yaml'
       destination:
         name: '{{clusterName}}'
         namespace: '{{appName}}'

@@ -1,3 +1,4 @@
 {
-  "clusterName": "cluster-2"
+  "clusterName": "cluster-2",
+  "revision": "5.56.6"
 }
