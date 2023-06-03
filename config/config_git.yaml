@@ -6,54 +6,42 @@ spec:
   generators:
     - matrix:
         generators:
-          # git file generator referencing files containing details about each
-          # app to be deployed (e.g., `appName`).
           - git:
               repoURL: https://github.com/xenbyte/helm-charts
               revision: HEAD
               files:
-                - path: "charts/**/argo.json"
-              pathParamPrefix: app
-          # git file generator referencing files containing details about
-          # locations to which each app should deploy (e.g., `region` and
-          # `clusterName`).
+                - path: "charts/*"
+              # pathParamPrefix: app
           - git:
               repoURL: https://github.com/xenbyte/helm-charts
               revision: HEAD
               files:
-                - path: "targets/{{appName}}/*.json"
+                - path: "targets/{{path.basename}}/**/config.json"
               pathParamPrefix: target
   template:
     metadata:
-      name: '{{appName}}-{{clusterName}}'
+      name: '{{path.basename}}-{{clusterName}}'
     spec:
       project: 'default'
       sources:
         - repoURL: "http://206.189.100.76:8080"
-          chart: '{{appName}}'
+          chart: '{{path.basename}}'
           targetRevision: "{{revision}}"
           helm:
             valueFiles:
-            - $values/{{appName}}/{{clusterName}}.yaml
-        - repoURL: 'https://github.com/xenbyte/chart-values'
+            - $values/targets/{{path.basename}}/values.yaml
+            - $values/targets/{{path.basename}}/{{clusterName}}/values.yaml
+        - repoURL: 'https://github.com/xenbyte/helm-charts'
           targetRevision: HEAD
           ref: values
-        #source:
-        #  repoURL: 'https://github.com/xenbyte/helm-charts'
-        #  path: 'charts/{{appName}}'
-        #  targetRevision: HEAD
-        #  helm:
-        #    valueFiles:
-        #      - 'values.yaml'
-        #      - 'values/{{clusterName}}.yaml'
       destination:
         name: '{{clusterName}}'
-        namespace: '{{appName}}'
+        namespace: '{{path.basename}}'
 
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
-        automated: # automated sync by default retries failed attempts 5 times with following delays between attempts ( 5s, 10s, 20s, 40s, 80s ); retry controlled using `retry` field.
-          prune: true # Specifies if resources should be pruned during auto-syncing ( false by default ).
+        automated: 
+          prune: true 
           selfHeal: true
 
