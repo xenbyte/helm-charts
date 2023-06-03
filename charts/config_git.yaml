@@ -1,13 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: git-in-git
+  name: popsite-test
 spec:
   generators:
     - matrix:
         generators:
           # git file generator referencing files containing details about each
           # app to be deployed (e.g., `appName`).
+          - git:
+              repoURL: https://github.com/xenbyte/helm-charts
+              revision: HEAD
+              files:
+                - path: "charts/**/values/*.json"
+              pathParamPrefix: app
           # git file generator referencing files containing details about
           # locations to which each app should deploy (e.g., `region` and
           # `clusterName`).
@@ -15,23 +21,24 @@ spec:
               repoURL: https://github.com/xenbyte/helm-charts
               revision: HEAD
               files:
-                - path: "charts/{{appName}}/values/*.json"
+                - path: "targets/{{appName}}/*.json"
               pathParamPrefix: target
   template:
     metadata:
-      name: '{{target.name}}-cluster'
+      name: '{{path.basename}}-{{cluster}}'
     spec:
       project: 'default'
       source:
-        repoURL: "https://github.com/xenbyte/helm-charts"
-        path: '{{name}}'
+        repoURL: 'https://github.com/xenbyte/helm-charts'
+        path: 'charts/{{appName}}'
         targetRevision: HEAD
         helm:
           valueFiles:
-            - 'charts/{{appName}}/values/{{target.cluster}}.yaml'
+            - 'values.yaml'
+            # - 'values/{{name}}.yaml'
 
       destination:
-        server: '{{target}}'
+        server: '{{clusterName}}'
         namespace: '{{path.basename}}'
 
       syncPolicy:
