@@ -12,7 +12,7 @@ spec:
               repoURL: https://github.com/xenbyte/helm-charts
               revision: HEAD
               files:
-                - path: "charts/**/values/argo.json"
+                - path: "charts/**/argo.json"
               pathParamPrefix: app
           # git file generator referencing files containing details about
           # locations to which each app should deploy (e.g., `region` and
