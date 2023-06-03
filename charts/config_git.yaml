@@ -25,7 +25,7 @@ spec:
               pathParamPrefix: target
   template:
     metadata:
-      name: '{{path.basename}}-{{cluster}}'
+      name: '{{appName}}-{{clusterName}}'
     spec:
       project: 'default'
       source:
@@ -35,11 +35,11 @@ spec:
         helm:
           valueFiles:
             - 'values.yaml'
-            # - 'values/{{name}}.yaml'
+            - 'targets/{{appName}}/values/{{clusterName}}.yaml'
 
       destination:
-        server: '{{clusterName}}'
-        namespace: '{{path.basename}}'
+        name: '{{clusterName}}'
+        namespace: '{{appName}}'
 
       syncPolicy:
         syncOptions:
