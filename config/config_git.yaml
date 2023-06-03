@@ -9,14 +9,14 @@ spec:
           - git:
               repoURL: https://github.com/xenbyte/helm-charts
               revision: HEAD
-              files:
+              directories:
                 - path: "charts/*"
               # pathParamPrefix: app
           - git:
               repoURL: https://github.com/xenbyte/helm-charts
               revision: HEAD
               files:
-                - path: "targets/{{path.basename}}/**/config.json"
+                - path: "targets/{{path.basename}}/**/argo.json"
               pathParamPrefix: target
   template:
     metadata:
